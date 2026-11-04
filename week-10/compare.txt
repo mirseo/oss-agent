@@ -42,3 +42,20 @@ tools.py와 secret.py는 고치지 말 것
 이전 대화 규칙
 모든 답의 마지막 줄에 "-끝"을 붙일 것
 
+
+### 사용량
+시작 시 사용량
+
+Session (5hr)19%
+Resets at 1:10 PM
+Weekly (7 day)69%
+Resets Sat, Nov 7 at 3:00 AM
+Weekly Fable75%
+
+종료 시 사용량
+Session (5hr)20%
+Resets at 1:10 PM
+Weekly (7 day)69%
+Resets Sat, Nov 7 at 3:00 AM
+Weekly Fable75%
+Resets Sat, Nov 7 at 3:00 AM
