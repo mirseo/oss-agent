@@ -1,71 +1,57 @@
-import requests, json
+"""tools.py — 박스오피스 정보를 가져오는 도구 모음 (7주차 예시 답안)
+
+쓰는 곳: 11주차 에이전트 루프, 12주차 스킬, 14주차 공개
+필요한 것: requests, secret.py 의 API_KEY
+"""
+import requests
 from secret import API_KEY
 
 BASE_URL = ("https://www.kobis.or.kr/kobisopenapi/webservice/rest/"
-        "boxoffice/searchDailyBoxOfficeList.json")
+            "boxoffice/searchDailyBoxOfficeList.json")
 
-def get_movie_audience(date:str, movie_name:str):
-    """
-        그 날자의 영화 제목에 대한 일일 관객수를 알려준다.
 
-        받는 것 : date (문자열), movie_name (문자열) - 8자리 날짜, 예 : "20260824", 영화 제목, 예 : "오디세이"
-        돌려주는 것 : (문자열) 관객 수. 예 : "186,587명"
-        오류 처리 : 없는 영화 시
-            - "'없는 영화' 은(는) {date} 순위에 없습니다."
-
-        예시(Example)    
-        print(tools.get_movie_audience("20260824", "오디세이"))
-        # output : 186,587명
-
-        print(tools.get_movie_audience("20260824", "호프"))
-        # output : 3,026명
-
-        print(tools.get_movie_audience("20260824", "없는영화"))
-        # output : '없는영화' 은(는) 20260824 순위에 없습니다.
-    """
+def _get_movies(date):
+    """KOBIS 에 요청해 그 날짜의 영화 목록을 받는다. 실패하면 안내 문장을 돌려준다."""
+    params = {"key": API_KEY, "targetDt": date}
     try:
-        data = requests.get(BASE_URL, 
-                            params={"key" : API_KEY, "targetDt": date}, 
-                            timeout=10).json()
-    except:
-        print("[E0] 네트워크 API 요청에 실패하였습니다.")
-    
-    try:
-        data = data['boxOfficeResult']['dailyBoxOfficeList']
-    except KeyError:
-        print("[E1] API에서 받은 결과를 파싱할 수 없습니다.\n없는 값 : ['boxOfficeResult']['dailyBoxOfficeList2']")
-        return None
-    
-    try:
-        for i in data:
-            if i['movieNm'] == movie_name:
-                return f"{int(i['audiCnt']):,}명"
-        return f"'{movie_name}' 은(는) {date} 순위에 없습니다."
-    except:
-        print("[E2] 영화 비교 중 문제가 발생하였습니다.")
+        response = requests.get(BASE_URL, params=params, timeout=10)
+    except requests.RequestException:
+        return "네트워크에 연결하지 못했습니다."
+    if response.status_code != 200:
+        return f"요청이 실패했습니다. 상태 코드: {response.status_code}"
+    data = response.json()
+    if "faultInfo" in data:
+        return "요청이 거절되었습니다: " + data["faultInfo"]["message"]
+    movies = data["boxOfficeResult"]["dailyBoxOfficeList"]
+    if len(movies) == 0:
+        return f"{date} 에는 집계된 자료가 없습니다."
+    return movies
+
 
 def get_boxoffice_rank_1(date):
     """
-        그 날자의 박스오피스 1위 영화 제목을 알려준다.
+    그 날짜의 박스오피스 1위 영화 제목을 알려준다.
 
-        받는 것: date (문자열) - 8자리 날짜, 예 : "20260824
-        돌려주는 것 : (문자열) 1위 영화 제목. 예 : "오디세이"
+    받는 것: date (문자열) — 8자리 날짜. 예: "20260824"
+    돌려주는 것: (문자열) 1위 영화 제목. 예: "오디세이"
     """
+    movies = _get_movies(date)
+    if isinstance(movies, str):
+        return movies
+    return movies[0]["movieNm"]
 
-    params = {"key" : API_KEY, "targetDt": date}
-    response = requests.get(BASE_URL, params=params, timeout=10)
-    data = response.json()
-    movies = data['boxOfficeResult']['dailyBoxOfficeList']
-    return movies[0]['movieNm']
 
-if __name__ == "__main__":
-    pass
-    # print(get_boxoffice_rank_1("20260826"))
-    # print(get_movie_audience("20260824", "오디세이"))
-    # # output : 186,587명
+def get_movie_audience(date, title):
+    """
+    그 날짜에 특정 영화를 본 관객 수를 알려준다.
 
-    # print(get_movie_audience("20260824", "호프"))
-    # # output : 3,026명
-
-    # print(get_movie_audience("20260824", "없는영화"))
-    # # output : '없는영화' 은(는) 20260824 순위에 없습니다.
+    받는 것: date (문자열) — 8자리 날짜, title (문자열) — 영화 제목
+    돌려주는 것: (문자열) 관객 수. 예: "186,587명"
+    """
+    movies = _get_movies(date)
+    if isinstance(movies, str):
+        return movies
+    for movie in movies:
+        if movie["movieNm"] == title:
+            return f"{int(movie['audiCnt']):,}명"
+    return f"'{title}' 은(는) {date} 순위에 없습니다."

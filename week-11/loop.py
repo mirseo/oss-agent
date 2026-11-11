@@ -8,6 +8,9 @@ import requests
 import tools
 from secret import GEMINI_API_KEY
 
+# URL = "http://localhost:11434/v1/chat/completions"
+# MODEL = "qwen3:0.6-GGUF"
+
 # ---------- 설정 ----------
 URL = ("https://generativelanguage.googleapis.com/"
        "v1beta/openai/chat/completions")
@@ -102,7 +105,10 @@ def run(question):
             # [빈칸 3] 결과를 대화에 다시 넣기
             #   role 은 "tool", 어느 호출의 결과인지(tool_call_id),
             #   도구 이름(name), 결과(content)
-            tool_message = None
+            # tool_message=None
+            tool_message = {"role":"tool",
+                            "tool_call_id":call["id"],"name":name,
+                            "content":str(result)}
             if tool_message is None:
                 stop_at_blank(3, "105", "결과를 대화에 넣을 메시지를 만들 것. "
                                            "넣지 않으면 모델은 결과를 모름.")
@@ -112,6 +118,9 @@ def run(question):
 
 
 if __name__ == "__main__":
+    # question = ("파이썬이 뭐야? 한 줄로 알려줘")
+    # question = ("2099년 11월 8일 박스오피스 1위 영화는 뭐고, "
+                # "그 영화를 그날 몇 명이 봤어?")
     question = ("2026년 11월 8일 박스오피스 1위 영화는 뭐고, "
                 "그 영화를 그날 몇 명이 봤어?")
     print("질문:", question)
