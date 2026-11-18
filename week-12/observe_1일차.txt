@@ -27,13 +27,14 @@
    5-2. audience 결과: 57,190명
 
 6. 스킬 목록에 boxoffice 와 내가 쓴 설명이 나왔나 (12단계):
-
+프로젝트 스킬
+- boxoffice: KOBIS 일별 박스오피스 조회. 특정 날짜의 1위 영화·관객 수 질의 시 사용함
 
 7. 스킬을 설치한 뒤 같은 질문 (13단계)
-   7-1. 스킬이 쓰였나:
-   7-2. 읽은 파일:
-   7-3. 권한 요청 횟수:
-   7-4. 실행한 명령:
+   7-1. 스킬이 쓰였나: O
+   7-2. 읽은 파일:  .claude/skills/boxoffice/scripts/boxoffice.py
+   7-3. 권한 요청 횟수: 2회
+   7-4. 실행한 명령: python3 .claude/skills/boxoffice/scripts/boxoffice.py
 
 8. /boxoffice 로 물었을 때 스크립트가 몇 번, 어떤 순서로 실행됐나 (14단계):
-
+2회 -> rank 제공 수행 이후 audience로 넘겨서 권한 요청 처리
